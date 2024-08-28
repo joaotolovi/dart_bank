@@ -1,8 +1,8 @@
+import 'package:dart_bank/models/account.dart';
 import 'package:dart_bank/models/premium_account.dart';
 import 'package:dart_bank/models/simple_account.dart';
 import 'package:dart_bank/services/transfer_service.dart';
 import 'package:test/test.dart';
-import 'package:dart_bank/models/account.dart';
 
 void main() {
   group('transferService', () {
@@ -25,6 +25,26 @@ void main() {
 
       expect(account1.getBalance(), 800.0);
       expect(account2.getBalance(), 700.0);
+    });
+    test('should throw exception when trying to transfer to the same account', () {
+      expect(
+        () => transferService(account1, account1, 200.0),
+        throwsA(isA<Exception>().having((e) => e.toString(), 'message', contains('Not allowed transfer to some account'))),
+      );
+    });
+
+    test('should throw exception when trying to transfer below one', () {
+      expect(
+        () => transferService(account1, account2, 0.5),
+        throwsA(isA<Exception>().having((e) => e.toString(), 'message', contains('Not allowed transfer below one'))),
+      );
+    });
+
+    test('should throw exception when trying to transfer more than the balance', () {
+      expect(
+        () => transferService(account1, account2, 1200.0),
+        throwsA(isA<Exception>().having((e) => e.toString(), 'message', contains("You don't have enough balance"))),
+      );
     });
   });
 }
